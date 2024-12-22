@@ -7,6 +7,7 @@ use axum::{
 mod database;
 mod handlers;
 use database::create_database_if_inexistant;
+use database::insert_post_in_database;
 use handlers::Post;
 use handlers::CreatePost;
 
@@ -20,8 +21,8 @@ async fn main() {
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
-        // `POST /users` goes to `create_post`
-        .route("/users", post(create_post));
+        // `POST /posts` goes to `create_post`
+        .route("/posts", post(create_post));
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -40,10 +41,7 @@ async fn create_post(
     Json(payload): Json<CreatePost>,
 ) -> (StatusCode, Json<Post>) {
     // insert your application logic here
-    let p = Post {
-        id: 1337,
-        text: payload.text,
-    };
+    let p = insert_post_in_database(payload).unwrap();
 
     // this will be converted into a JSON response
     // with a status code of `201 Created`
