@@ -3,10 +3,16 @@ use axum::{
     http::StatusCode,
     Json, Router,
 };
-use serde::{Deserialize, Serialize};
+
+mod database;
+mod handlers;
+use database::create_database_if_inexistant;
+use handlers::Post;
+use handlers::CreatePost;
 
 #[tokio::main]
 async fn main() {
+    create_database_if_inexistant();
     // initialize tracing
     tracing_subscriber::fmt::init();
 
@@ -42,17 +48,4 @@ async fn create_post(
     // this will be converted into a JSON response
     // with a status code of `201 Created`
     (StatusCode::CREATED, Json(p))
-}
-
-// the input to our `create_post` handler
-#[derive(Deserialize)]
-struct CreatePost {
-    text: String,
-}
-
-// the output to our `create_post` handler
-#[derive(Serialize)]
-struct Post {
-    id: u64,
-    text: String,
 }
